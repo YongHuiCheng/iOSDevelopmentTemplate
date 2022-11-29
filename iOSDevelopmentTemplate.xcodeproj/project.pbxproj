@@ -18,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		245184EC293616730021386A /* EchoMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EchoMacro.h; sourceTree = "<group>"; };
 		246A56412934D9210075BD58 /* iOSDevelopmentTemplate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSDevelopmentTemplate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		246A56442934D9210075BD58 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		246A56452934D9210075BD58 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -45,6 +46,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		245184EB293615A90021386A /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				245184EC293616730021386A /* EchoMacro.h */,
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
 		246A56382934D9210075BD58 = {
 			isa = PBXGroup;
 			children = (
@@ -64,6 +73,7 @@
 		246A56432934D9210075BD58 /* iOSDevelopmentTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				245184EB293615A90021386A /* Resource */,
 				246A565D2934E19D0075BD58 /* Touch */,
 				246A56442934D9210075BD58 /* AppDelegate.h */,
 				246A56452934D9210075BD58 /* AppDelegate.m */,
