@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		24394DA22939D2E700F81C79 /* FileUploadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 24394DA12939D2E700F81C79 /* FileUploadManager.m */; };
+		24394DA52939D30300F81C79 /* FileUploadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24394DA42939D30300F81C79 /* FileUploadOperation.m */; };
+		24394DAB2939DBF600F81C79 /* NSData+EO.m in Sources */ = {isa = PBXBuildFile; fileRef = 24394DAA2939DBF600F81C79 /* NSData+EO.m */; };
 		246A56462934D9210075BD58 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 246A56452934D9210075BD58 /* AppDelegate.m */; };
 		246A56492934D9210075BD58 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 246A56482934D9210075BD58 /* SceneDelegate.m */; };
 		246A564C2934D9210075BD58 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 246A564B2934D9210075BD58 /* ViewController.m */; };
@@ -18,6 +21,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		24394DA02939D2E700F81C79 /* FileUploadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileUploadManager.h; sourceTree = "<group>"; };
+		24394DA12939D2E700F81C79 /* FileUploadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileUploadManager.m; sourceTree = "<group>"; };
+		24394DA32939D30300F81C79 /* FileUploadOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileUploadOperation.h; sourceTree = "<group>"; };
+		24394DA42939D30300F81C79 /* FileUploadOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileUploadOperation.m; sourceTree = "<group>"; };
+		24394DA62939D33100F81C79 /* FileUploadEnums.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileUploadEnums.h; sourceTree = "<group>"; };
+		24394DA72939D62E00F81C79 /* iOSDevlopmentTemplate-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOSDevlopmentTemplate-Prefix.pch"; sourceTree = "<group>"; };
+		24394DA92939DBF600F81C79 /* NSData+EO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+EO.h"; sourceTree = "<group>"; };
+		24394DAA2939DBF600F81C79 /* NSData+EO.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+EO.m"; sourceTree = "<group>"; };
 		245184EC293616730021386A /* EchoMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EchoMacro.h; sourceTree = "<group>"; };
 		246A56412934D9210075BD58 /* iOSDevelopmentTemplate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSDevelopmentTemplate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		246A56442934D9210075BD58 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -46,6 +57,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		24394D9F2939D2A900F81C79 /* NSOperation */ = {
+			isa = PBXGroup;
+			children = (
+				24394DA02939D2E700F81C79 /* FileUploadManager.h */,
+				24394DA12939D2E700F81C79 /* FileUploadManager.m */,
+				24394DA32939D30300F81C79 /* FileUploadOperation.h */,
+				24394DA42939D30300F81C79 /* FileUploadOperation.m */,
+				24394DA62939D33100F81C79 /* FileUploadEnums.h */,
+			);
+			path = NSOperation;
+			sourceTree = "<group>";
+		};
+		24394DA82939DBD400F81C79 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				24394DA92939DBF600F81C79 /* NSData+EO.h */,
+				24394DAA2939DBF600F81C79 /* NSData+EO.m */,
+			);
+			path = Category;
+			sourceTree = "<group>";
+		};
 		245184EB293615A90021386A /* Resource */ = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +105,8 @@
 		246A56432934D9210075BD58 /* iOSDevelopmentTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				24394DA82939DBD400F81C79 /* Category */,
+				24394D9F2939D2A900F81C79 /* NSOperation */,
 				245184EB293615A90021386A /* Resource */,
 				246A565D2934E19D0075BD58 /* Touch */,
 				246A56442934D9210075BD58 /* AppDelegate.h */,
@@ -86,6 +120,7 @@
 				246A56522934D9240075BD58 /* LaunchScreen.storyboard */,
 				246A56552934D9240075BD58 /* Info.plist */,
 				246A56562934D9240075BD58 /* main.m */,
+				24394DA72939D62E00F81C79 /* iOSDevlopmentTemplate-Prefix.pch */,
 			);
 			path = iOSDevelopmentTemplate;
 			sourceTree = "<group>";
@@ -169,10 +204,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24394DAB2939DBF600F81C79 /* NSData+EO.m in Sources */,
 				246A564C2934D9210075BD58 /* ViewController.m in Sources */,
+				24394DA52939D30300F81C79 /* FileUploadOperation.m in Sources */,
 				246A56462934D9210075BD58 /* AppDelegate.m in Sources */,
 				246A56572934D9240075BD58 /* main.m in Sources */,
 				246A56492934D9210075BD58 /* SceneDelegate.m in Sources */,
+				24394DA22939D2E700F81C79 /* FileUploadManager.m in Sources */,
 				246A56602934E1CD0075BD58 /* EchoTouchVC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -317,6 +355,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YR98A22L87;
+				GCC_PREFIX_HEADER = "iOSDevelopmentTemplate/iOSDevlopmentTemplate-Prefix.pch";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOSDevelopmentTemplate/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -325,7 +364,7 @@
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -349,6 +388,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YR98A22L87;
+				GCC_PREFIX_HEADER = "iOSDevelopmentTemplate/iOSDevlopmentTemplate-Prefix.pch";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOSDevelopmentTemplate/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -357,7 +397,7 @@
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
