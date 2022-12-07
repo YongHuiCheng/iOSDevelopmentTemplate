@@ -6,25 +6,32 @@
 //
 
 #import "FileUploadOperation.h"
+#import "YYKit.h"
+
+static NSString *const kProgressCallbackKey = @"progress";
+static NSString *const kCompletedCallbackKey = @"completed";
+
+typedef NSMutableDictionary<NSString *, id> FileCallbacksDictionary;
 
 @interface FileUploadOperation ()
 
-/// 超时计时器
-@property (nonatomic, strong) dispatch_source_t timer;
-/// 定时器挂起状态
-@property (nonatomic, assign) BOOL timerValid;
+@property (nonatomic, assign, getter = isExecuting) BOOL executing;
+@property (nonatomic, assign, getter = isFinished) BOOL finished;
 
+/// 计时器
+@property (nonatomic, strong) NSTimer *timer;
 /// 超时时间默认3分钟
 @property (nonatomic, assign) NSInteger timeoutInterval;
-
+/// 计数
+@property (nonatomic, assign) NSInteger timeCnt;
 /// 线程锁
 @property (nonatomic, strong) NSRecursiveLock *lock;
 /// 文件信息
 @property (nonatomic, strong) NSDictionary *fileInfo;
-/// 进度回调
-@property (nonatomic, copy) FileUploadProgresBlock progresBlock;
-/// 结果回调
-@property (nonatomic, copy) FileUploadFinishBlock resultBlock;
+
+/// 存储回调
+@property (strong, nonatomic, nonnull) NSMutableArray<FileCallbacksDictionary *> *callbackBlocks;
+
 
 @end
 
@@ -35,160 +42,206 @@
 
 - (instancetype)initWithFileKey:(NSString *)fileKey
                        fileInfo:(NSDictionary *)fileInfo
-                   progresBlock:(nonnull FileUploadProgresBlock)progresBlock
-                    resultBlock:(nonnull FileUploadFinishBlock)resultBlock
 {
     if (self = [super init]) {
         _executing = NO;
         _finished = NO;
-        // 默认三分钟超时
         _timeoutInterval = 180;
+        self.timeCnt = 0;
+        
         self.fileKey = fileKey;
-        self.fileInfo = fileInfo;
-        self.progresBlock = progresBlock;
-        self.resultBlock = resultBlock;
+        NSMutableDictionary *fileDict = [[NSMutableDictionary alloc] initWithDictionary:fileInfo];
+        fileDict[FileSDKFileInfoFileMD5Key] = self.fileKey;
+        self.fileInfo = fileDict;
+
         self.lock = [[NSRecursiveLock alloc] init];
         self.lock.name = FileUploadOperationLockName;
     }
+
     return self;
 }
 
-- (void)startTimer {
-    __weak __typeof(self)weakSelf = self;
-    _timerValid = YES;
-    _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
-    dispatch_source_set_timer(_timer, dispatch_time(DISPATCH_TIME_NOW, (_timeoutInterval * NSEC_PER_SEC)), (_timeoutInterval * NSEC_PER_SEC), 0);
-    dispatch_source_set_event_handler(_timer, ^{[weakSelf timeoutAction];});
-    dispatch_resume(_timer);
-}
+- (id)addHandlersForProgress:(FileUploadProgresBlock)progressBlock
+                   completed:(FileUploadFinishBlock)completedBlock {
+    FileCallbacksDictionary *callbacks = [NSMutableDictionary new];
 
-- (void)stopTimer {
-    if (_timerValid) {
-        dispatch_source_cancel(_timer);
-        _timer = NULL;
-        _timerValid = NO;
+    if (progressBlock) {
+        callbacks[kProgressCallbackKey] = [progressBlock copy];
     }
-}
 
-- (void)timeoutAction {
-    [self cancel];
-}
-
-#pragma mark - privateMethod
-+ (void)networkRequestThreadEntryPoint:(id)__unused object {
-    @autoreleasepool {
-        [[NSThread currentThread] setName:@"WJAsyncOperation"];
-        
-        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-        [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
-        [runLoop run];
+    if (completedBlock) {
+        callbacks[kCompletedCallbackKey] = [completedBlock copy];
     }
-}
 
-+ (NSThread *)operationThread {
-    static NSThread *_networkRequestThread = nil;
-    static dispatch_once_t oncePredicate;
-    dispatch_once(&oncePredicate, ^{
-        _networkRequestThread = [[NSThread alloc] initWithTarget:self selector:@selector(networkRequestThreadEntryPoint:) object:nil];
-        [_networkRequestThread start];
-    });
-    
-    return _networkRequestThread;
-}
-
-- (void)startUpload {
-    if (self.isCancelled || self.isFinished || self.isExecuting) {
-        return;
+    @synchronized (self) {
+        [self.callbackBlocks addObject:callbacks];
     }
-    [self KVONotificationWithNotiKey:@"isExecuting" state:&_executing stateValue:YES];
-    [self uploadFile];
-}
-
-- (void)uploadFile {
-
-    [self startTimer];
-    //TODO：BY_huyang 这里开始向服务器上传文件
-}
-
-- (void)cancelUpload {
-    self.resultBlock = nil;
-    self.progresBlock = nil;
-}
-
-- (void)uploadFileFailed {
-    [self finish];
-    if (self.resultBlock) {
-        self.resultBlock(NO, nil);
-    }
-}
-
-- (void)finishUpload {
-    self.resultBlock = nil;
-    self.progresBlock = nil;
+    return callbacks;
 }
 
 #pragma mark - 重写Operation部分方法
 - (void)start {
-    [self.lock lock];
-    // 任务是否取消检测
-    if (self.isCancelled) {
-        [self finish];
-        [self.lock unlock];
-        return;
+    @synchronized (self) {
+        if (self.isCancelled) {
+            if (!self.isFinished) {
+                self.finished = YES;
+            }
+
+            [self callCompletionBlocksWithError:[NSError errorWithDomain:FileUploadErrorDomain
+                                                                    code:FileUploadErrorCancelled
+                                                                userInfo:@{ NSLocalizedDescriptionKey: @"Operation cancelled by user before sending the request" }]];
+            [self reset];
+            return;
+        }
+
+        [self uploadFile];
+        self.executing = YES;
     }
-    // 已经完成或者在执行状态，直接返回
-    if (self.isFinished || self.isExecuting) {
-        [self.lock unlock];
-        return;
-    }
-    // 开始执行上传任务，同时也开启超时计时器
-    [self runSelector:@selector(startUpload)];
-    [self.lock unlock];
 }
 
 - (void)cancel {
-    [self.lock lock];
-    // 未取消&未完成才执行取消
-    if (!self.isCancelled && !self.isFinished) {
-        [super cancel];
-        [self KVONotificationWithNotiKey:@"isCancelled" state:&_cancelled stateValue:YES];
-        // 正在执行，取消任务
+    @synchronized (self) {
+        [self cancelInternal];
+    }
+}
+
+- (void)cancelInternal {
+    if (self.isFinished) {
+        return;
+    }
+
+    [super cancel];
+
+    NSLog(@"FileUploadOperation ===== %@文件取消上传", self.fileKey);
+
+    if (self.isExecuting || self.isFinished) {
         if (self.isExecuting) {
-            [self runSelector:@selector(cancelUpload)];
+            self.executing = NO;
+        }
+
+        if (!self.isFinished) {
+            self.finished = YES;
         }
     }
-    [self.lock unlock];
+
+    NSError *error = [NSError errorWithDomain:FileUploadErrorDomain
+                                         code:FileUploadErrorCancelled
+                                     userInfo:@{ NSLocalizedDescriptionKey: @"Operation cancelled by user during sending the request" }];
+    [self callCompletionBlocksWithError:error];
+
+    [self reset];
 }
 
-- (void)finish {
-    [self.lock lock];
-    if (self.isExecuting) {
-        [self KVONotificationWithNotiKey:@"isExecuting" state:&_executing stateValue:NO];
+- (void)done {
+    self.finished = YES;
+    self.executing = NO;
+    [self reset];
+}
+
+- (void)reset {
+    @synchronized (self) {
+        [self.callbackBlocks removeAllObjects];
     }
-    [self KVONotificationWithNotiKey:@"isFinished" state:&_finished stateValue:YES];
-    [self runSelector:@selector(finishUpload)];
-    [self.lock unlock];
 }
 
-- (BOOL)isAsynchronous {
+- (void)setFinished:(BOOL)finished {
+    [self willChangeValueForKey:@"isFinished"];
+    _finished = finished;
+    [self didChangeValueForKey:@"isFinished"];
+}
+
+- (void)setExecuting:(BOOL)executing {
+    [self willChangeValueForKey:@"isExecuting"];
+    _executing = executing;
+    [self didChangeValueForKey:@"isExecuting"];
+}
+
+- (BOOL)isConcurrent {
     return YES;
 }
 
-
-
-- (void)KVONotificationWithNotiKey:(NSString *)key state:(BOOL *)state stateValue:(BOOL)stateValue {
-    [self.lock lock];
-    [self willChangeValueForKey:key];
-    *state = stateValue;
-    [self didChangeValueForKey:key];
-    [self.lock unlock];
+#pragma mark - privateMethod
+- (void)callProgressBlockWithSendSize:(NSInteger)sendSize
+                            totalSize:(NSInteger)totalSize
+{
+    for (FileUploadProgresBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+        progressBlock(sendSize, totalSize);
+    }
 }
 
-- (void)runSelector:(SEL)selecotr {
-    [self performSelector:selecotr
-                 onThread:[[self class] operationThread]
-               withObject:nil
-            waitUntilDone:NO
-                    modes:@[NSRunLoopCommonModes]];
+- (void)callCompletionBlocksWithError:(nullable NSError *)error {
+    NSLog(@"FileUploadOperation ===== upload error: %@", error.description);
+    [self callCompletionBlocksWithResult:nil error:error];
+}
+
+- (void)callCompletionBlocksWithResult:(NSDictionary *)result
+                                 error:(nullable NSError *)error {
+    NSArray<id> *completionBlocks = [self callbacksForKey:kCompletedCallbackKey];
+
+    dispatch_main_async_safe(^{
+        for (FileUploadFinishBlock completedBlock in completionBlocks) {
+            BOOL success = error ? NO : YES;
+            completedBlock(success, error, result);
+        }
+        [self stopTimer];
+    });
+}
+
+- (nullable NSArray<id> *)callbacksForKey:(NSString *)key {
+    NSMutableArray<id> *callbacks;
+
+    @synchronized (self) {
+        callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
+    }
+    [callbacks removeObjectIdenticalTo:[NSNull null]];
+    return [callbacks copy];
+}
+
+- (void)startTimer {
+    YYWeakProxy *weakProxy = [YYWeakProxy proxyWithTarget:self];
+    self.timer = [NSTimer timerWithTimeInterval:1
+                                         target:weakProxy
+                                       selector:@selector(timerAction)
+                                       userInfo:nil
+                                        repeats:YES];
+}
+
+- (void)stopTimer {
+    if([self.timer isValid]) {
+        [self.timer invalidate];
+        self.timer = nil;
+    }
+}
+
+- (void)timerAction {
+    self.timeCnt++;
+    if (self.timeCnt >= self.timeoutInterval) {
+        [self stopTimer];
+        if (self.isExecuting) {
+            [self cancel];
+        }
+    }
+}
+
+- (void)uploadFile {
+ 
+    [self startTimer];
+    NSLog(@"FileUploadOperation ===== %@文件任务开始", self.fileKey);
+    //TODO：code 上传文件的请求
+}
+
+- (void)finishUploadFile {
+    // 上传结果
+    NSDictionary *result = [NSDictionary new];
+    [self callCompletionBlocksWithResult:result error:nil];
+}
+
+#pragma mark - getter
+- (NSMutableArray<FileCallbacksDictionary *> *)callbackBlocks {
+    if (!_callbackBlocks) {
+        _callbackBlocks = [[NSMutableArray alloc] init];
+    }
+
+    return _callbackBlocks;
 }
 @end

@@ -9,12 +9,57 @@
 #import <AVFoundation/AVFoundation.h>
 #import "FileUploadOperation.h"
 #import "NSData+EO.h"
+#import "YYKit.h"
 
-@interface FileUploadManager ()
-@property (nonatomic, strong) dispatch_queue_t addOperationSerialQueue;
+#import <libkern/OSAtomic.h>
+#import <os/lock.h>
 
+#define WJ_LOCK_INIT(lock) if (@available(iOS 10, *)) lock = OS_UNFAIR_LOCK_INIT; \
+else lock##_deprecated = OS_SPINLOCK_INIT;
+
+#define WJ_LOCK_DECLARE(lock) os_unfair_lock lock API_AVAILABLE(ios(10.0)); \
+OSSpinLock lock##_deprecated;
+
+#define WJ_LOCK(lock) if (@available(iOS 10, *)) os_unfair_lock_lock(&lock); \
+else OSSpinLockLock(&lock##_deprecated);
+
+#define WJ_UNLOCK(lock) if (@available(iOS 10, *)) os_unfair_lock_unlock(&lock); \
+else OSSpinLockUnlock(&lock##_deprecated);
+
+@interface FileUploadToken : NSObject
+
+@property (nonatomic, weak) id uploadOperationCancelToken;
+@property (nonatomic, weak) FileUploadOperation *uploadOperation;
+/// 上传的文件标记
+@property (nonatomic, copy) NSString *fileKey;
+
+@end
+
+@implementation FileUploadToken
+
+- (instancetype)initWithUploadOperation:(FileUploadOperation *)uploadOperation {
+    self = [super init];
+    if (self) {
+        _uploadOperation = uploadOperation;
+    }
+    return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone { return [self modelCopy]; }
+
+@end
+
+@interface FileUploadManager () {
+    WJ_LOCK_DECLARE(_operationsLock);
+}
 /// 上传队列
 @property (nonatomic, strong) NSOperationQueue *uploadQueue;
+
+/// 上传任务字典
+@property (nonatomic, strong) NSMutableDictionary<NSString *, FileUploadOperation *> *operations;
+/// 上传任务集合
+@property (nonatomic, strong) NSMutableArray<FileUploadToken *> *operationTokenArr;
+
 @end
 
 @implementation FileUploadManager
@@ -23,9 +68,13 @@ EOSingletonM
 - (instancetype)init {
     self = [super init];
     if (!self) {
+        WJ_LOCK_INIT(_operationsLock);
+
         self.uploadQueue = [[NSOperationQueue alloc] init];
         self.uploadQueue.maxConcurrentOperationCount = 5;
-        self.addOperationSerialQueue = dispatch_queue_create("com.echo.wjUploadOperationSerializeQueue", DISPATCH_QUEUE_SERIAL);
+        self.uploadQueue.name = FileUploadQueueName;
+        self.operations = [NSMutableDictionary new];
+        self.operationTokenArr = [NSMutableArray new];
     }
     return self;
 }
@@ -37,14 +86,14 @@ EOSingletonM
 {
     if (!path.length) {
         dispatch_main_async_safe(^{
-            !result ? : result(NO, nil);
+            !result ? : result(NO, nil, nil);
         });
         return;
     }
 
     if (![NSFileManager.defaultManager fileExistsAtPath:path]) {
         dispatch_main_async_safe(^{
-            !result ? : result(NO, nil);
+            !result ? : result(NO, nil, nil);
         });
         return;
     }
@@ -77,7 +126,7 @@ EOSingletonM
                 allTotalBytesSent += totalBytesSent;
             }
             !progress ? : progress(allTotalBytesSent, allTotalBytes);
-        } result:^(BOOL success, NSDictionary * _Nullable result) {
+        } result:^(BOOL success, NSError *error, NSDictionary * _Nullable result) {
             if (success) {
                 [results addObject:result];
             } else {
@@ -139,7 +188,7 @@ EOSingletonM
             }
 
             !progress ? : progress(allTotalBytesSent, allTotalBytes);
-        } result:^(BOOL success, NSDictionary * _Nullable result) {
+        } result:^(BOOL success, NSError *error, NSDictionary * _Nullable result) {
             if (success) {
                 [results addObject:result];
             } else {
@@ -184,7 +233,7 @@ EOSingletonM
             }
 
             !progress ? : progress(allTotalBytesSent, allTotalBytes);
-        } result:^(BOOL success, NSDictionary * _Nullable result) {
+        } result:^(BOOL success, NSError *error, NSDictionary * _Nullable result) {
             if (success) {
                 [results addObject:result];
             } else {
@@ -314,30 +363,57 @@ EOSingletonM
                       progress:(FileUploadProgresBlock)progress
                         result:(FileUploadFinishBlock)result
 {
-    FileUploadOperation *operation = [[FileUploadOperation alloc] initWithFileKey:fileKey
-                                                                         fileInfo:fileInfo
-                                                                     progresBlock:progress
-                                                                      resultBlock:result];
-    [self addUploadOperation:operation];
-}
-
-
-- (void)addUploadOperation:(FileUploadOperation *)operation {
-    __weak typeof(self) weakSelf = self;
-    dispatch_async(self.addOperationSerialQueue, ^{
-        if ([weakSelf isUploadingFile:operation.fileKey]) {
-            NSLog(@"重复添加上传任务->\nkey:%@", operation.fileKey);
-            return;
+    WJ_LOCK(_operationsLock);
+    id uploadOperationCancelToken;
+    FileUploadOperation *operation = [self.operations objectForKey:fileKey];
+    BOOL needAdd = NO;
+    // operation 不存在，或者已经完成和取消，去创建新的operation
+    if (!operation || operation.isFinished || operation.isCancelled) {
+        operation = [[FileUploadOperation alloc] initWithFileKey:fileKey
+                                                      fileInfo:fileInfo];
+        @weakify(self);
+        operation.completionBlock = ^{
+            @strongify(self);
+            [self removeOperation:fileKey];
+        };
+        
+        self.operations[fileKey] = operation;
+        uploadOperationCancelToken = [operation addHandlersForProgress:progress completed:result];
+        needAdd = YES;
+    } else {
+        // operation 已经存在，添加新的回调
+        @synchronized (operation) {
+            uploadOperationCancelToken = [operation addHandlersForProgress:progress completed:result];
         }
-        [weakSelf.uploadQueue addOperation:operation];
-    });
+    }
+    
+
+    FileUploadToken *token = [[FileUploadToken alloc] initWithUploadOperation:operation];
+    token.fileKey = fileKey;
+    token.uploadOperationCancelToken = uploadOperationCancelToken;
+    token.uploadOperation = operation;
+    [self.operationTokenArr addObject:token];
+    
+    if (needAdd) {
+        [self.uploadQueue addOperation:operation];
+    }
+    WJ_UNLOCK(_operationsLock);
 }
 
-- (BOOL)isUploadingFile:(NSString *)key {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"operation.fileKey = %@", key];
-    NSArray *filterResult = [self.uploadQueue.operations filteredArrayUsingPredicate:predicate];
-    return filterResult.count > 0;
+
+- (void)removeOperation:(NSString *)fileKey {
+    WJ_LOCK(self->_operationsLock);
+    [self.operations removeObjectForKey:fileKey];
+    
+    NSMutableArray *tempTokenArr = [[NSMutableArray alloc] initWithArray:self.operationTokenArr copyItems:YES];
+    for (FileUploadToken *token in tempTokenArr) {
+        if ([token.fileKey isEqualToString:fileKey]) {
+            [self.operationTokenArr removeObject:token];
+        }
+    }
+    WJ_UNLOCK(self->_operationsLock);
 }
+
 
 - (void)cancelUploadOperations {
     __weak typeof(self) weakSelf = self;

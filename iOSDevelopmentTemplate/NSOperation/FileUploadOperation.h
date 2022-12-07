@@ -15,16 +15,18 @@ NS_ASSUME_NONNULL_BEGIN
 /// 操作唯一id标识符, 也即文件MD5值
 @property (nonatomic, copy) NSString *fileKey;
 
-/// 初始化上传操作
+/// 添加回调
+/// - Parameters:
+///   - progressBlock: 进度回调
+///   - completedBlock: 完成回调
+- (nullable id)addHandlersForProgress:(nullable FileUploadProgresBlock)progressBlock
+                            completed:(nullable FileUploadFinishBlock)completedBlock;
+/// 初始化上传做操
 /// - Parameters:
 ///   - fileKey: 文件md5
 ///   - fileInfo: 文件其它信息
-///   - progresBlock: 进度回调
-///   - resultBlock: 结果回调
 - (instancetype)initWithFileKey:(NSString *)fileKey
-                       fileInfo:(NSDictionary *)fileInfo
-                   progresBlock:(FileUploadProgresBlock)progresBlock
-                    resultBlock:(FileUploadFinishBlock)resultBlock;
+                       fileInfo:(NSDictionary *)fileInfo;
 
 @end
 

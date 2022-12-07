@@ -18,6 +18,8 @@
 		246A56542934D9240075BD58 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 246A56522934D9240075BD58 /* LaunchScreen.storyboard */; };
 		246A56572934D9240075BD58 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 246A56562934D9240075BD58 /* main.m */; };
 		246A56602934E1CD0075BD58 /* EchoTouchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 246A565F2934E1CD0075BD58 /* EchoTouchVC.m */; };
+		2494E3242940B72300BE6BD5 /* CYProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2494E3232940B72300BE6BD5 /* CYProxy.m */; };
+		F16597947C9AADAAF7BB77E7 /* libPods-iOSDevelopmentTemplate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E7690DB641C6CB7169FF07 /* libPods-iOSDevelopmentTemplate.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +46,11 @@
 		246A56562934D9240075BD58 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		246A565E2934E1CD0075BD58 /* EchoTouchVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EchoTouchVC.h; sourceTree = "<group>"; };
 		246A565F2934E1CD0075BD58 /* EchoTouchVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EchoTouchVC.m; sourceTree = "<group>"; };
+		2494E3222940B72300BE6BD5 /* CYProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CYProxy.h; sourceTree = "<group>"; };
+		2494E3232940B72300BE6BD5 /* CYProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CYProxy.m; sourceTree = "<group>"; };
+		58E7690DB641C6CB7169FF07 /* libPods-iOSDevelopmentTemplate.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-iOSDevelopmentTemplate.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC9F5E2A14DE363F65AACEC2 /* Pods-iOSDevelopmentTemplate.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iOSDevelopmentTemplate.debug.xcconfig"; path = "Target Support Files/Pods-iOSDevelopmentTemplate/Pods-iOSDevelopmentTemplate.debug.xcconfig"; sourceTree = "<group>"; };
+		F7B3C953AE8A01F5F55B32CF /* Pods-iOSDevelopmentTemplate.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iOSDevelopmentTemplate.release.xcconfig"; path = "Target Support Files/Pods-iOSDevelopmentTemplate/Pods-iOSDevelopmentTemplate.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F16597947C9AADAAF7BB77E7 /* libPods-iOSDevelopmentTemplate.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +99,8 @@
 			children = (
 				246A56432934D9210075BD58 /* iOSDevelopmentTemplate */,
 				246A56422934D9210075BD58 /* Products */,
+				CE5C7F80C677B22BB2A8040E /* Pods */,
+				6A2A855F5CE3162DD127FB76 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -105,6 +115,7 @@
 		246A56432934D9210075BD58 /* iOSDevelopmentTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				2494E3212940B71300BE6BD5 /* Component */,
 				24394DA82939DBD400F81C79 /* Category */,
 				24394D9F2939D2A900F81C79 /* NSOperation */,
 				245184EB293615A90021386A /* Resource */,
@@ -134,6 +145,32 @@
 			path = Touch;
 			sourceTree = "<group>";
 		};
+		2494E3212940B71300BE6BD5 /* Component */ = {
+			isa = PBXGroup;
+			children = (
+				2494E3222940B72300BE6BD5 /* CYProxy.h */,
+				2494E3232940B72300BE6BD5 /* CYProxy.m */,
+			);
+			path = Component;
+			sourceTree = "<group>";
+		};
+		6A2A855F5CE3162DD127FB76 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				58E7690DB641C6CB7169FF07 /* libPods-iOSDevelopmentTemplate.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CE5C7F80C677B22BB2A8040E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				AC9F5E2A14DE363F65AACEC2 /* Pods-iOSDevelopmentTemplate.debug.xcconfig */,
+				F7B3C953AE8A01F5F55B32CF /* Pods-iOSDevelopmentTemplate.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -141,6 +178,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 246A565A2934D9240075BD58 /* Build configuration list for PBXNativeTarget "iOSDevelopmentTemplate" */;
 			buildPhases = (
+				088D0671ABE57425D65B84EA /* [CP] Check Pods Manifest.lock */,
 				246A563D2934D9210075BD58 /* Sources */,
 				246A563E2934D9210075BD58 /* Frameworks */,
 				246A563F2934D9210075BD58 /* Resources */,
@@ -199,12 +237,38 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		088D0671ABE57425D65B84EA /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-iOSDevelopmentTemplate-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		246A563D2934D9210075BD58 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				24394DAB2939DBF600F81C79 /* NSData+EO.m in Sources */,
+				2494E3242940B72300BE6BD5 /* CYProxy.m in Sources */,
 				246A564C2934D9210075BD58 /* ViewController.m in Sources */,
 				24394DA52939D30300F81C79 /* FileUploadOperation.m in Sources */,
 				246A56462934D9210075BD58 /* AppDelegate.m in Sources */,
@@ -349,6 +413,7 @@
 		};
 		246A565B2934D9240075BD58 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AC9F5E2A14DE363F65AACEC2 /* Pods-iOSDevelopmentTemplate.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -364,7 +429,7 @@
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -382,6 +447,7 @@
 		};
 		246A565C2934D9240075BD58 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F7B3C953AE8A01F5F55B32CF /* Pods-iOSDevelopmentTemplate.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -397,7 +463,7 @@
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
