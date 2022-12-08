@@ -94,8 +94,8 @@ typedef NSMutableDictionary<NSString *, id> FileCallbacksDictionary;
             return;
         }
 
-        [self uploadFile];
         self.executing = YES;
+        [self uploadFile];
     }
 }
 
@@ -204,6 +204,9 @@ typedef NSMutableDictionary<NSString *, id> FileCallbacksDictionary;
                                        selector:@selector(timerAction)
                                        userInfo:nil
                                         repeats:YES];
+    // 在子线程中，要加到RunLoop中
+    [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+    [self.timer fire];
 }
 
 - (void)stopTimer {
