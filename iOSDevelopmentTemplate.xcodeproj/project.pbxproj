@@ -19,6 +19,7 @@
 		246A56572934D9240075BD58 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 246A56562934D9240075BD58 /* main.m */; };
 		246A56602934E1CD0075BD58 /* EchoTouchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 246A565F2934E1CD0075BD58 /* EchoTouchVC.m */; };
 		2494E3242940B72300BE6BD5 /* CYProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2494E3232940B72300BE6BD5 /* CYProxy.m */; };
+		2494E32E2942CB8E00BE6BD5 /* 文件批量上传.md in Resources */ = {isa = PBXBuildFile; fileRef = 2494E32D2942CB8D00BE6BD5 /* 文件批量上传.md */; };
 		F16597947C9AADAAF7BB77E7 /* libPods-iOSDevelopmentTemplate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E7690DB641C6CB7169FF07 /* libPods-iOSDevelopmentTemplate.a */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +49,7 @@
 		246A565F2934E1CD0075BD58 /* EchoTouchVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EchoTouchVC.m; sourceTree = "<group>"; };
 		2494E3222940B72300BE6BD5 /* CYProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CYProxy.h; sourceTree = "<group>"; };
 		2494E3232940B72300BE6BD5 /* CYProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CYProxy.m; sourceTree = "<group>"; };
+		2494E32D2942CB8D00BE6BD5 /* 文件批量上传.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "文件批量上传.md"; sourceTree = "<group>"; };
 		58E7690DB641C6CB7169FF07 /* libPods-iOSDevelopmentTemplate.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-iOSDevelopmentTemplate.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC9F5E2A14DE363F65AACEC2 /* Pods-iOSDevelopmentTemplate.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iOSDevelopmentTemplate.debug.xcconfig"; path = "Target Support Files/Pods-iOSDevelopmentTemplate/Pods-iOSDevelopmentTemplate.debug.xcconfig"; sourceTree = "<group>"; };
 		F7B3C953AE8A01F5F55B32CF /* Pods-iOSDevelopmentTemplate.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iOSDevelopmentTemplate.release.xcconfig"; path = "Target Support Files/Pods-iOSDevelopmentTemplate/Pods-iOSDevelopmentTemplate.release.xcconfig"; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 		24394D9F2939D2A900F81C79 /* NSOperation */ = {
 			isa = PBXGroup;
 			children = (
+				2494E32D2942CB8D00BE6BD5 /* 文件批量上传.md */,
 				24394DA02939D2E700F81C79 /* FileUploadManager.h */,
 				24394DA12939D2E700F81C79 /* FileUploadManager.m */,
 				24394DA32939D30300F81C79 /* FileUploadOperation.h */,
@@ -232,6 +235,7 @@
 				246A56542934D9240075BD58 /* LaunchScreen.storyboard in Resources */,
 				246A56512934D9240075BD58 /* Assets.xcassets in Resources */,
 				246A564F2934D9210075BD58 /* Main.storyboard in Resources */,
+				2494E32E2942CB8E00BE6BD5 /* 文件批量上传.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
